@@ -23,6 +23,10 @@ class ImprovementRequest(BaseModel):
 
 @router.get("/improve")
 async def improve_text(text: str = Query(..., min_length=5, max_length=1000)):
+    if not text.strip():
+        raise HTTPException(
+            status_code=422, detail="Text must not be empty or whitespace."
+        )
     """
     GET endpoint that receives text as a query parameter.
     Returns JSON with the improved text.

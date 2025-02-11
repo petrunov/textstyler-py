@@ -60,6 +60,39 @@ async def test_improve_text_missing_param():
 
 
 @pytest.mark.asyncio
+async def test_improve_text_too_short():
+    # Only 3 characters -> should fail validation for min_length=5
+    text = "Hi!"
+    async with LifespanManager(app):
+        async with httpx.AsyncClient(app=app, base_url="http://test") as client:
+            response = await client.get(f"/improve?text={text}")
+            assert response.status_code == 422  # Fails because it's < 5 chars
+
+
+@pytest.mark.asyncio
+async def test_improve_text_whitespace_only():
+    # This also should fail because your validator doesn't allow empty/whitespace
+    text = "     "
+    async with LifespanManager(app):
+        async with httpx.AsyncClient(app=app, base_url="http://test") as client:
+            response = await client.get(f"/improve?text={text}")
+            print("DEBUG text:", text)
+            print("DEBUG status:", response.status_code)
+            print("DEBUG body:", response.text)
+            assert response.status_code == 422  # Fails due to whitespace only
+
+
+@pytest.mark.asyncio
+async def test_improve_text_too_long():
+    # 1001 characters -> should fail validation
+    text = "a" * 1001
+    async with LifespanManager(app):
+        async with httpx.AsyncClient(app=app, base_url="http://test") as client:
+            response = await client.get(f"/improve?text={text}")
+            assert response.status_code == 422
+
+
+@pytest.mark.asyncio
 async def test_improve_async_valid(monkeypatch):
     # Clear cache and job store for test isolation
     cache.clear()
@@ -97,6 +130,35 @@ async def test_improve_async_missing_text():
             response = await client.post("/improve-async", json={})
             # Expecting a 422 validation error because 'text' is missing
             assert response.status_code == 422
+
+
+@pytest.mark.asyncio
+async def test_improve_async_too_short():
+    # Only 4 characters -> should fail the Pydantic validator in ImprovementRequest
+    text = "Cat"
+    async with LifespanManager(app):
+        async with httpx.AsyncClient(app=app, base_url="http://test") as client:
+            response = await client.post("/improve-async", json={"text": text})
+            assert response.status_code == 422  # Should fail
+
+
+@pytest.mark.asyncio
+async def test_improve_async_too_long():
+    # 1001 characters -> should fail the Pydantic validator
+    text = "a" * 1001
+    async with LifespanManager(app):
+        async with httpx.AsyncClient(app=app, base_url="http://test") as client:
+            response = await client.post("/improve-async", json={"text": text})
+            assert response.status_code == 422
+
+
+@pytest.mark.asyncio
+async def test_improve_async_whitespace_only():
+    text = "     "
+    async with LifespanManager(app):
+        async with httpx.AsyncClient(app=app, base_url="http://test") as client:
+            response = await client.post("/improve-async", json={"text": text})
+            assert response.status_code == 422  # whitespace-only should fail
 
 
 @pytest.mark.asyncio
