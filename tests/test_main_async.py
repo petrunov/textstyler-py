@@ -76,9 +76,6 @@ async def test_improve_text_whitespace_only():
     async with LifespanManager(app):
         async with httpx.AsyncClient(app=app, base_url="http://test") as client:
             response = await client.get(f"/improve?text={text}")
-            print("DEBUG text:", text)
-            print("DEBUG status:", response.status_code)
-            print("DEBUG body:", response.text)
             assert response.status_code == 422  # Fails due to whitespace only
 
 
