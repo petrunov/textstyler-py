@@ -1,20 +1,20 @@
 import asyncio
 
-from openai import OpenAI
+import openai
 
 from app.core.config import settings
 
-client = OpenAI(api_key=settings.OPENAI_API_KEY)
+openai.api_key = settings.OPENAI_API_KEY
 
 
-async def simulate_llm_improvement(text: str) -> str:
+async def llm_improvement(text: str) -> str:
     """
     Asynchronously calls the OpenAI Chat Completion API to improve text.
     Uses asyncio.to_thread to run the synchronous call without blocking.
     """
     try:
         response = await asyncio.to_thread(
-            client.chat.completions.create,
+            openai.chat.completions.create,
             messages=[
                 {
                     "role": "system",
@@ -30,12 +30,12 @@ async def simulate_llm_improvement(text: str) -> str:
         return f"Error calling OpenAI API: {e}"
 
 
-def simulate_llm_improvement_sync(text: str) -> str:
+def llm_improvement_sync(text: str) -> str:
     """
     Synchronously calls the OpenAI Chat Completion API to improve text.
     """
     try:
-        response = client.chat.completions.create(
+        response = openai.chat.completions.create(
             messages=[
                 {
                     "role": "system",

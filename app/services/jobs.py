@@ -1,7 +1,7 @@
 import logging
 import uuid
 
-from app.services.llm import simulate_llm_improvement_sync
+from app.services.llm import llm_improvement_sync
 from app.state import cache, jobs
 
 logger = logging.getLogger(__name__)
@@ -34,7 +34,7 @@ def process_job(job_id: str):
         if text in cache:
             result = cache[text]
         else:
-            result = simulate_llm_improvement_sync(text)
+            result = llm_improvement_sync(text)
             cache[text] = result
 
         jobs[job_id]["result"] = result

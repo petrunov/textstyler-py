@@ -6,3 +6,7 @@ black
 flake8
 isort
 pre-commit
+pytest
+asgi_lifespan
+pytest-asyncio
+httpx==0.27.2

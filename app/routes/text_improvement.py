@@ -1,8 +1,6 @@
 from fastapi import APIRouter, BackgroundTasks, HTTPException
 from pydantic import BaseModel, field_validator
 
-from app.services.jobs import create_job, process_job
-from app.services.llm import simulate_llm_improvement
 from app.state import cache, jobs
 
 router = APIRouter()
@@ -25,10 +23,14 @@ async def improve_text(text: str):
     GET endpoint that receives text as a query parameter
     Returns JSON with the improved text.
     """
+    # Lazy import: import the function when the endpoint is called.
+    # This allows for monkey patching in the test suite.
+    from app.services.llm import llm_improvement
+
     if text in cache:
         return {"improved_text": cache[text]}
 
-    improved_text = await simulate_llm_improvement(text)
+    improved_text = await llm_improvement(text)
     cache[text] = improved_text
     return {"improved_text": improved_text}
 
@@ -39,6 +41,8 @@ async def improve_async(request: ImprovementRequest, background_tasks: Backgroun
     POST endpoint to submit a text improvement job asynchronously.
     Returns a job ID that can be used to check the job status.
     """
+    from app.services.jobs import create_job, process_job
+
     job_id = create_job(request.text)
     background_tasks.add_task(process_job, job_id)
     return {"job_id": job_id}
