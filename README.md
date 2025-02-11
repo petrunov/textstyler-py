@@ -76,20 +76,6 @@ http://127.0.0.1:8000/job-status/<job_id>
 
 Replace `<job_id>` with the actual job ID returned from the asynchronous request.
 
-### Additional Example:
-
-Run a cURL request to submit a job:
-
-```bash
-curl -X POST "http://127.0.0.1:8000/improve-async" -H "Content-Type: application/json" -d '{"text": "I has a apple"}'
-```
-
-Then check the status of the job in your browser:
-
-```bash
-http://127.0.0.1:8000/job-status/<job_id>
-```
-
 ## Running Unit Tests 🧪
 
 Unit tests are written using **pytest-asyncio** and **httpx's AsyncClient** for asynchronous testing. To run the tests:
