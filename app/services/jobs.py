@@ -1,7 +1,6 @@
 import logging
 import uuid
 
-from app.services.llm import llm_improvement_sync
 from app.state import cache, jobs
 
 logger = logging.getLogger(__name__)
@@ -18,9 +17,9 @@ def create_job(text: str) -> str:
 
 def process_job(job_id: str):
     """
-    Process a job: update its status, perform the LLM improvement (checking the
-    cache first), and update the job store. If an error occurs, update status to
-    "error" and log the exception.
+    Process a job: update its status, perform the LLM improvement ,
+    (checking the cache first) and update the job store.
+    If an error occurs, update status to "error" and log the exception.
     """
     job = jobs.get(job_id)
     if not job:
@@ -31,6 +30,9 @@ def process_job(job_id: str):
     jobs[job_id]["status"] = "processing"
 
     try:
+        # Lazy import to allow patching and decoupling.
+        from app.services.llm import llm_improvement_sync
+
         if text in cache:
             result = cache[text]
         else:

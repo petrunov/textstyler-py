@@ -10,3 +10,5 @@ pytest
 asgi_lifespan
 pytest-asyncio
 httpx==0.27.2
+bleach
+slowapi

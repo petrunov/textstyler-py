@@ -1,4 +1,4 @@
-from fastapi import APIRouter, BackgroundTasks, HTTPException
+from fastapi import APIRouter, BackgroundTasks, HTTPException, Query
 from pydantic import BaseModel, field_validator
 
 from app.state import cache, jobs
@@ -9,18 +9,22 @@ router = APIRouter()
 class ImprovementRequest(BaseModel):
     text: str
 
-
-@field_validator("text")
-def text_must_not_be_empty(cls, v):
-    if not v or not v.strip():
-        raise ValueError("Text must not be empty or whitespace.")
-    return v
+    @field_validator("text")
+    def text_must_have_valid_length(cls, v):
+        # Check for non-empty/whitespace
+        if not v or not v.strip():
+            raise ValueError("Text must not be empty or whitespace.")
+        # Enforce length constraints
+        stripped = v.strip()
+        if not (5 <= len(stripped) <= 1000):
+            raise ValueError("Text length must be between 5 and 1000 characters.")
+        return stripped
 
 
 @router.get("/improve")
-async def improve_text(text: str):
+async def improve_text(text: str = Query(..., min_length=5, max_length=1000)):
     """
-    GET endpoint that receives text as a query parameter
+    GET endpoint that receives text as a query parameter.
     Returns JSON with the improved text.
     """
     # Lazy import: import the function when the endpoint is called.

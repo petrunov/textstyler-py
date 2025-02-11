@@ -6,11 +6,10 @@ import httpx
 import pytest
 from asgi_lifespan import LifespanManager
 
-from app.main import app
-from app.state import cache, jobs
-
 # Ensure the project root is on sys.path.
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+from app.main import app  # noqa: E402
+from app.state import cache, jobs  # noqa: E402
 
 
 # Fake implementations for testing
