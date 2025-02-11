@@ -13,8 +13,8 @@ This project implements an API that improves text using a simulated LLM integrat
 1. **Clone the repository and change into the directory:**
 
    ```bash
-   git clone https://github.com/your-username/llm-text-improvement.git
-   cd llm-text-improvement
+   git clone https://github.com/petrunov/textstyler-py
+   cd textstyler-py
    ```
 
 ## Examples
