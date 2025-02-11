@@ -1,9 +1,11 @@
 import asyncio
+
 from openai import OpenAI
+
 from app.core.config import settings
 
-# Create the OpenAI client using your API key from settings.
 client = OpenAI(api_key=settings.OPENAI_API_KEY)
+
 
 async def simulate_llm_improvement(text: str) -> str:
     """
@@ -14,7 +16,10 @@ async def simulate_llm_improvement(text: str) -> str:
         response = await asyncio.to_thread(
             client.chat.completions.create,
             messages=[
-                {"role": "system", "content": "Improve the grammar and style of the following text."},
+                {
+                    "role": "system",
+                    "content": "Improve the grammar and style of the following text.",
+                },
                 {"role": "user", "content": text},
             ],
             model="gpt-3.5-turbo",
@@ -24,6 +29,7 @@ async def simulate_llm_improvement(text: str) -> str:
     except Exception as e:
         return f"Error calling OpenAI API: {e}"
 
+
 def simulate_llm_improvement_sync(text: str) -> str:
     """
     Synchronously calls the OpenAI Chat Completion API to improve text.
@@ -31,7 +37,10 @@ def simulate_llm_improvement_sync(text: str) -> str:
     try:
         response = client.chat.completions.create(
             messages=[
-                {"role": "system", "content": "Improve the grammar and style of the following text."},
+                {
+                    "role": "system",
+                    "content": "Improve the grammar and style of the following text.",
+                },
                 {"role": "user", "content": text},
             ],
             model="gpt-3.5-turbo",

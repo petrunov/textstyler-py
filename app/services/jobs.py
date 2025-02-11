@@ -1,9 +1,11 @@
-import uuid
 import logging
-from app.state import cache, jobs
+import uuid
+
 from app.services.llm import simulate_llm_improvement_sync
+from app.state import cache, jobs
 
 logger = logging.getLogger(__name__)
+
 
 def create_job(text: str) -> str:
     """
@@ -13,10 +15,12 @@ def create_job(text: str) -> str:
     jobs[job_id] = {"status": "queued", "result": None, "text": text}
     return job_id
 
+
 def process_job(job_id: str):
     """
-    Process a job: update its status, perform the LLM improvement (checking the cache first),
-    and update the job store. If an error occurs, update status to "error" and log the exception.
+    Process a job: update its status, perform the LLM improvement (checking the
+    cache first), and update the job store. If an error occurs, update status to
+    "error" and log the exception.
     """
     job = jobs.get(job_id)
     if not job:

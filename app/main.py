@@ -1,5 +1,6 @@
 # main.py
 from fastapi import FastAPI
+
 from app.routes.text_improvement import router as text_router
 
 app = FastAPI()

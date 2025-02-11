@@ -1,13 +1,16 @@
-from fastapi import APIRouter, HTTPException, BackgroundTasks
+from fastapi import APIRouter, BackgroundTasks, HTTPException
 from pydantic import BaseModel, field_validator
-from app.state import cache, jobs
+
+from app.services.jobs import create_job, process_job
 from app.services.llm import simulate_llm_improvement
-from app.services.jobs import create_job, process_job  
+from app.state import cache, jobs
 
 router = APIRouter()
 
+
 class ImprovementRequest(BaseModel):
     text: str
+
 
 @field_validator("text")
 def text_must_not_be_empty(cls, v):
@@ -15,10 +18,12 @@ def text_must_not_be_empty(cls, v):
         raise ValueError("Text must not be empty or whitespace.")
     return v
 
+
 @router.get("/improve")
 async def improve_text(text: str):
     """
-    GET endpoint that receives text as a query parameter and returns JSON with the improved text.
+    GET endpoint that receives text as a query parameter
+    Returns JSON with the improved text.
     """
     if text in cache:
         return {"improved_text": cache[text]}
@@ -26,6 +31,7 @@ async def improve_text(text: str):
     improved_text = await simulate_llm_improvement(text)
     cache[text] = improved_text
     return {"improved_text": improved_text}
+
 
 @router.post("/improve-async")
 async def improve_async(request: ImprovementRequest, background_tasks: BackgroundTasks):
@@ -37,6 +43,7 @@ async def improve_async(request: ImprovementRequest, background_tasks: Backgroun
     background_tasks.add_task(process_job, job_id)
     return {"job_id": job_id}
 
+
 @router.get("/job-status/{job_id}")
 async def job_status(job_id: str):
     """
@@ -45,8 +52,8 @@ async def job_status(job_id: str):
     job = jobs.get(job_id)
     if not job:
         raise HTTPException(status_code=404, detail="Job not found")
-    
+
     if job["status"] == "error":
         return {"status": "error", "result": job["result"]}
-    
+
     return job
