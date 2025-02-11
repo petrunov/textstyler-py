@@ -1,17 +1,42 @@
 import asyncio
-import time
+from openai import OpenAI
+from app.core.config import settings
+
+# Create the OpenAI client using your API key from settings.
+client = OpenAI(api_key=settings.OPENAI_API_KEY)
 
 async def simulate_llm_improvement(text: str) -> str:
     """
-    Simulates an asynchronous LLM call with a delay.
-    In production, replace this with an async call to your LLM provider.
+    Asynchronously calls the OpenAI Chat Completion API to improve text.
+    Uses asyncio.to_thread to run the synchronous call without blocking.
     """
-    await asyncio.sleep(2)  # Simulate delay
-    return f"Improved: {text}"
+    try:
+        response = await asyncio.to_thread(
+            client.chat.completions.create,
+            messages=[
+                {"role": "system", "content": "Improve the grammar and style of the following text."},
+                {"role": "user", "content": text},
+            ],
+            model="gpt-3.5-turbo",
+        )
+        improved_text = improved_text = response.choices[0].message.content.strip()
+        return improved_text
+    except Exception as e:
+        return f"Error calling OpenAI API: {e}"
 
 def simulate_llm_improvement_sync(text: str) -> str:
     """
-    Synchronous version for background processing.
+    Synchronously calls the OpenAI Chat Completion API to improve text.
     """
-    time.sleep(2)  # Simulate delay
-    return f"Improved: {text}"
+    try:
+        response = client.chat.completions.create(
+            messages=[
+                {"role": "system", "content": "Improve the grammar and style of the following text."},
+                {"role": "user", "content": text},
+            ],
+            model="gpt-3.5-turbo",
+        )
+        improved_text = improved_text = response.choices[0].message.content.strip()
+        return improved_text
+    except Exception as e:
+        return f"Error calling OpenAI API: {e}"
